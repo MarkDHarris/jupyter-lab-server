@@ -139,6 +139,11 @@ RUN sudo apt-get install -y wget apt-transport-https software-properties-common 
 ################################################################################
 
 ################################################################################
+# install java
+RUN sudo apt-get install -y default-jdk
+################################################################################
+
+################################################################################
 # install jupyter and rust, go, and .net kernels
 ENV DOTNET_INTERACTIVE_CLI_TELEMETRY_OPTOUT=true
 ENV DOTNET_INTERACTIVE_SKIP_FIRST_TIME_EXPERIENCE=true
@@ -180,8 +185,4 @@ CMD [ "/home/maharris/.local/bin/jupyter", "lab", \
 #       - ./notebooks:/opt/notebooks
 
 
-# https://github.com/jupyter/jupyter/wiki/Jupyter-kernels
 
-# ssh
-# C
-# C++

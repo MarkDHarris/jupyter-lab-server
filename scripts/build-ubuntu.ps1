@@ -1,9 +1,10 @@
 $StartTime = $(get-date);
 
 $USERNAME="maharris"
-$IMAGENAME = "jupyter:latest"
+$IMAGENAME = "jupyterlabsubuntu:latest"
+$ARCH="amd64"
 
-docker run -it -p 8888:8888 --rm --mount "type=bind,src=${pwd}\notebooks,target=/opt/notebooks" --entrypoint /bin/bash $IMAGENAME
+docker build -t $IMAGENAME --progress=plain -f ./ubuntu/Dockerfile --build-arg USERNAME="$USERNAME" .
 
 $StopTime = $(get-date);
 $ElapsedTime = $StopTime - $StartTime;

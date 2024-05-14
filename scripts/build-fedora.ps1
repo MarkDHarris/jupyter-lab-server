@@ -1,7 +1,7 @@
 $StartTime = $(get-date);
 
 $USERNAME="maharris"
-$IMAGENAME = "jupyterfedora:latest"
+$IMAGENAME = "jupyterlabs:latest"
 $ARCH="amd64"
 
 docker build -t $IMAGENAME --progress=plain -f ./fedora/Dockerfile --build-arg USERNAME="$USERNAME" .

@@ -2,7 +2,7 @@
 start_time=$(date +%s)
 
 USERNAME="maharris"
-IMAGENAME="jupyterfedora:latest"
+IMAGENAME="jupyterlabs:latest"
 ARCH="arm64"
 
 docker build -t $IMAGENAME --progress=plain -f ./fedora/Dockerfile --build-arg USERNAME="$USERNAME" --build-arg ARCH="$ARCH" .

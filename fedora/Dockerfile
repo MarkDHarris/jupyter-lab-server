@@ -74,6 +74,11 @@ RUN sudo dnf install -y dotnet-sdk-8.0
 ################################################################################
 
 ################################################################################
+# install java
+RUN sudo dnf install -y java-latest-openjdk java-latest-openjdk-devel
+################################################################################
+
+################################################################################
 # install jupyter and rust, go, and .net kernels
 ENV DOTNET_INTERACTIVE_CLI_TELEMETRY_OPTOUT=true
 ENV DOTNET_INTERACTIVE_SKIP_FIRST_TIME_EXPERIENCE=true
@@ -92,7 +97,18 @@ RUN python3 -m pip install jupyter \
     && sed "s|gophernotes|$(go env GOPATH)/bin/gophernotes|" < kernel.json.in > kernel.json \
     && dotnet tool install -g microsoft.dotnet-interactive \
     && "/home/$USERNAME/.dotnet/tools/dotnet-interactive" jupyter install \
+    && mkdir ijava && cd ijava \
+    && wget https://github.com/SpencerPark/IJava/releases/download/v1.3.0/ijava-1.3.0.zip \
+    && unzip ./ijava-1.3.0.zip && rm ./ijava-1.3.0.zip \
+    && python3 install.py \
     && "/home/$USERNAME/.local/bin/jupyter" kernelspec list
+
+RUN mkdir ijava && cd ijava \
+    && wget https://github.com/SpencerPark/IJava/releases/download/v1.3.0/ijava-1.3.0.zip \
+    && unzip ./ijava-1.3.0.zip && rm ./ijava-1.3.0.zip \
+    && python3 install.py
+
+
 ################################################################################
 
 EXPOSE 8888
