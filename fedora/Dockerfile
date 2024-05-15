@@ -8,23 +8,12 @@ ARG ARCH="amd64"
 
 ENV TZ=$TIMEZONE
 
-# Install python from repos
+# Add initial packages
 RUN dnf update -y \
     && dnf install -y curl net-tools git vim unzip which sudo tmux dos2unix \
         gcc openssl-devel bzip2-devel libffi-devel zlib-devel wget make \
-        python3 \
-        python3-devel \
-        python3-virtualenv \
-        python3-pip \
-        python3-wheel \
     && dnf group install -y "C Development Tools and Libraries" "Development Tools" \
     && dnf -y clean all
-
-# # Set the time zone
-# RUN echo "en_US.UTF-8 UTF-8" | sudo tee -a /etc/locale.gen \
-#     && locale-gen \
-#     && echo $TIMEZONE | sudo tee -a /etc/timezone \
-#     && sudo ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
     
 # Add a non-root user and enable them to use sudo without password
 RUN groupadd --gid $USER_GID $USERNAME \
@@ -53,37 +42,25 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -sSf | sh -s -- --
 ################################################################################
 
 ################################################################################
-# install go
-ENV GOROOT="/usr/local/go"
-ENV GOPATH="/home/$USERNAME/go"
-ENV GOBIN="/home/$USERNAME/go/bin"
-ENV PATH="$PATH:$GOROOT/bin:$GOPATH:$GOBIN"
-
-RUN GO_VERSION=$(curl -sSL "https://golang.org/VERSION?m=text" | sed -n '/^go/s///p' ) \
-    && sudo wget "https://golang.org/dl/go$GO_VERSION.linux-$ARCH.tar.gz" \
-    && sudo tar -xzf "go$GO_VERSION.linux-$ARCH.tar.gz" -C "/usr/local" \
-    && sudo rm "go$GO_VERSION.linux-$ARCH.tar.gz" \
-    && echo 'export GOPATH=$GOPATH'  >> /home/$USERNAME/.bashrc
-
-# RUN sudo dnf install -y go
+# install python, go, .net & java
+RUN sudo dnf install -y \
+                python3 \
+                python3-devel \
+                python3-virtualenv \
+                python3-pip \
+                python3-wheel \
+                go \
+                dotnet-sdk-8.0 \
+                java-latest-openjdk \
+                java-latest-openjdk-devel
 ################################################################################
 
 ################################################################################
-# install .NET 
-RUN sudo dnf install -y dotnet-sdk-8.0
-################################################################################
-
-################################################################################
-# install java
-RUN sudo dnf install -y java-latest-openjdk java-latest-openjdk-devel
-################################################################################
-
-################################################################################
-# install jupyter and rust, go, and .net kernels
+# install jupyter kernels
 ENV DOTNET_INTERACTIVE_CLI_TELEMETRY_OPTOUT=true
 ENV DOTNET_INTERACTIVE_SKIP_FIRST_TIME_EXPERIENCE=true
-ENV PATH="~/.local/bin:$PATH"
-ENV PATH=$PATH:"/home/$USERNAME/.dotnet/tools"
+
+ENV PATH="/home/$USERNAME/.local/bin:/home/$USERNAME/.dotnet/tools:$PATH"
 
 RUN python3 -m pip install jupyter \
     && cargo install evcxr_repl \
@@ -97,18 +74,15 @@ RUN python3 -m pip install jupyter \
     && sed "s|gophernotes|$(go env GOPATH)/bin/gophernotes|" < kernel.json.in > kernel.json \
     && dotnet tool install -g microsoft.dotnet-interactive \
     && "/home/$USERNAME/.dotnet/tools/dotnet-interactive" jupyter install \
-    && pip install kotlin-jupyter-kernel \
-    && pip install jupyter-cpp-kernel \
-    && pip install sshkernel \
-    && python3 -m sshkernel install --user
-
-RUN mkdir jjava && cd jjava \
+    && mkdir jjava && cd jjava \
     && wget https://github.com/dflib/jjava/releases/download/1.0-M1/jjava-1.0-M1.zip \
     && unzip ./jjava-1.0-M1.zip && rm ./jjava-1.0-M1.zip \
-    && python3 install.py --user
-
-RUN "/home/$USERNAME/.local/bin/jupyter" kernelspec list
-    
+    && python3 install.py --user \
+    && pip install kotlin-jupyter-kernel \
+    && pip install jupyter-cpp-kernel \    
+    && pip install sshkernel \
+    && python3 -m sshkernel install --user \
+    && "/home/$USERNAME/.local/bin/jupyter" kernelspec list    
 ################################################################################
 
 EXPOSE 8888

@@ -3,7 +3,7 @@ $StartTime = $(get-date);
 $USERNAME="maharris"
 $IMAGENAME = "jupyterlabs:latest"
 
-docker run -it -p 8888:8888 --rm --mount "type=bind,src=${pwd}\notebooks,target=/opt/notebooks" --entrypoint /bin/bash $IMAGENAME
+docker run -it -p 8888:8888 --rm --entrypoint /bin/bash --mount "type=bind,src=${pwd}\notebooks,target=/opt/notebooks" $IMAGENAME
 
 $StopTime = $(get-date);
 $ElapsedTime = $StopTime - $StartTime;
