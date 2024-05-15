@@ -4,7 +4,7 @@ start_time=$(date +%s)
 USERNAME="maharris"
 IMAGENAME="jupyterlabs:latest"
 
-docker run -it -p 8888:8888 --rm -u $USERNAME --entrypoint /bin/bash --mount "type=bind,src=./notebooks,target=/opt/notebooks" $IMAGENAME
+docker run -it -p 8888:8888 --rm --mount "type=bind,src=./notebooks,target=/opt/notebooks" $IMAGENAME
 
 end_time=$(date +%s)
 duration=$((end_time - start_time))
