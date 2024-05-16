@@ -1,21 +1,20 @@
 FROM fedora:40
 
-ARG TIMEZONE="America/New_York"
 ARG USERNAME=user
 ARG USER_UID=1001
 ARG USER_GID=$USER_UID
 ARG ARCH="amd64"
 
-ENV TZ=$TIMEZONE
+ENV TZ="America/New_York"
 
-# Add initial packages
+
 RUN dnf update -y \
     && dnf install -y curl net-tools git vim unzip which sudo tmux dos2unix \
         gcc openssl-devel bzip2-devel libffi-devel zlib-devel wget make \
     && dnf group install -y "C Development Tools and Libraries" "Development Tools" \
     && dnf -y clean all
     
-# Add a non-root user and enable them to use sudo without password
+# Add a non-root user, enable sudo without password, then run as non-root user from this point
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && sed -i /etc/sudoers -re 's/^%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g' \
@@ -28,18 +27,6 @@ RUN groupadd --gid $USER_GID $USERNAME \
 USER $USERNAME
 WORKDIR /home/$USERNAME/
 
-################################################################################
-# install rust
-ENV CARGO_HOME="/home/$USERNAME/.cargo"
-ENV RUSTUP_HOME="/home/$USERNAME/.rustup"
-ENV PATH="$CARGO_HOME/bin:$RUSTUP_HOME:$PATH"
-
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -sSf | sh -s -- --verbose -y --profile default \
-    && rustup component add rust-analysis \
-    && rustup component add rust-src \
-    && rustup component add rls \
-    && rustup target add wasm32-wasi
-################################################################################
 
 ################################################################################
 # install python, go, .net & java
@@ -53,6 +40,19 @@ RUN sudo dnf install -y \
                 dotnet-sdk-8.0 \
                 java-latest-openjdk \
                 java-latest-openjdk-devel
+################################################################################
+
+################################################################################
+# install rust
+ENV CARGO_HOME="/home/$USERNAME/.cargo"
+ENV RUSTUP_HOME="/home/$USERNAME/.rustup"
+ENV PATH="$CARGO_HOME/bin:$RUSTUP_HOME:$PATH"
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -sSf | sh -s -- --verbose -y --profile default \
+    && rustup component add rust-analysis \
+    && rustup component add rust-src \
+    && rustup component add rls \
+    && rustup target add wasm32-wasi
 ################################################################################
 
 ################################################################################

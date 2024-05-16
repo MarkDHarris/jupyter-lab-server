@@ -1,7 +1,7 @@
 $StartTime = $(get-date);
 
 $USERNAME="maharris"
-$IMAGENAME = "jupyterlabsubuntu:latest"
+$IMAGENAME = "jupyterlabs:latest"
 $ARCH="amd64"
 
 docker build -t $IMAGENAME --progress=plain -f ./ubuntu/Dockerfile --build-arg USERNAME="$USERNAME" .
